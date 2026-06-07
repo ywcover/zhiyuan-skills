@@ -477,6 +477,7 @@ apps_res/cap/customCtrlResources/<controlId>/
 | `references/jsp-guide.md` | JSP CRUD页面模板、分页、弹窗、AJAX交互 |
 | `references/bpm-event-guide.md` | **流程事件开发完整指南** — AbstractWorkflowEvent + @ListenEvent + 前端拦截 |
 | `references/seeyonapi-event-index.md` | **SeeyonAPI 8.2 事件完整索引** — 20模块、180+事件速查 |
+| `references/org-architecture-guide.md` | **组织架构开发完整指南** — 39事件 + REST同步 + 平台API |
 
 ## 注意事项
 
