@@ -1,0 +1,7 @@
+interface:
+  display_name: "致远CTP二开Skill"
+  short_description: "致远/Seeyon CTP V5/V8 客开完整指南 — 插件开发、CAP4表单、事件监听、超级节点、API集成"
+  default_prompt: "使用 zhiyuanskill-yw 按致远CTP二开规范和真实项目实战模式处理客开任务。遵循低侵入原则，优先使用配置/CIP > 插件化 > REST API > Event监听 > APPS API > 源码修改。"
+
+policy:
+  allow_implicit_invocation: true

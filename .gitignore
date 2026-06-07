@@ -1,0 +1,12 @@
+node_modules/
+target/
+.classpath
+.project
+.settings/
+*.zip
+*.7z
+*.rar
+.idea/
+**/WEB-INF/classes/
+**/WEB-INF/lib/
+.DS_Store
