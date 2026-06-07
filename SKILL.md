@@ -102,18 +102,63 @@ public class CustomPluginController extends BaseController {
 </services>
 ```
 
-## 事件监听 (@ListenEvent)
+## 事件监听 (@ListenEvent + AbstractWorkflowEvent)
 
-### 典型写法
+> 完整指南见 `references/bpm-event-guide.md`（基于官方文档 + 项目实战，467行）
+
+致远CTP提供**两套后端事件机制**：
+
+| 机制 | 作用域 | 绑定方式 | 适用场景 |
+|------|--------|---------|---------|
+| **AbstractWorkflowEvent** | 单个模板 | 流程设计器中绑定 | 特定表单审批后处理、发起前校验 |
+| **@ListenEvent** | 全局 | 注解 + Spring Bean | 通用监听、待办推送、日志记录 |
+
+### AbstractWorkflowEvent（流程级 — 首选）
+
 ```java
-@ListenEvent(event = CollaborationStartEvent.class, async = true,
-             mode = EventTriggerMode.afterCommit)
-public void onCollaborationStart(CollaborationStartEvent event) throws BusinessException {
-    // 1. 获取事务对象
-    // 2. 构造待办JSON
-    // 3. 推送第三方
-    // 4. 记录日志
+public class MyWorkflowEvent extends AbstractWorkflowEvent {
+    @Override public String getId() { return "uniqueId"; }
+    @Override public String getLabel() { return "事件显示名"; }
+    @Override public WorkflowEventConstants.WorkflowEventType getType() {
+        return WorkflowEventConstants.WorkflowEventType.Ext;
+    }
+
+    // 发起前校验（可阻止发起）
+    @Override
+    public WorkflowEventResult onBeforeStart(WorkflowEventData data) {
+        if (缺少必要字段) return new WorkflowEventResult("提示信息"); // 弹窗阻塞
+        return null; // 不阻塞
+    }
+
+    // 流程结束（只有后事件）
+    @Override
+    public void onProcessFinished(WorkflowEventData data) {
+        FormDataMasterBean bean = data.getBusinessData().get("formDataBean");
+        // 推送数据到外部系统
+    }
+
+    // 其他可覆写方法：
+    // onStart, onFinishWorkitem, onStop, onStepBack, onCancel, onTakeBack
+    // onBeforeFinishWorkitem, onBeforeStop, onBeforeStepBack, onBeforeCancel, onBeforeTakeBack
 }
+```
+
+### @ListenEvent（全局监听）
+
+三种执行模式：
+
+```java
+// ❌ 同步（默认）— 异常导致事务回滚
+@ListenEvent(event = CollaborationStartEvent.class)
+public void onStart(CollaborationStartEvent event) { }
+
+// ⚠️ 异步 — 异常不影响主流程，但主流程回滚时此代码仍执行
+@ListenEvent(event = CollaborationStartEvent.class, async = true)
+public void onStart(CollaborationStartEvent event) { }
+
+// ✅ 事务提交后（推荐）— 只有主流程成功才执行
+@ListenEvent(event = CollaborationStartEvent.class, mode = EventTriggerMode.afterCommit)
+public void onStart(CollaborationStartEvent event) { }
 ```
 
 ### 常用事件类型
@@ -422,9 +467,15 @@ apps_res/cap/customCtrlResources/<controlId>/
 | 超级节点数 | 0-1 | 1-5 | 20+ |
 | 外部集成系统 | 1 | 2-3 | 4+ |
 
-## 官方文档与本地模板
+## 参考文档索引
 
-详见 `references/zhiyuan-sources.md`
+| 文档 | 内容 |
+|------|------|
+| `references/zhiyuan-sources.md` | 官方文档链接、关键API索引、事件类速查 |
+| `references/cap4-guide.md` | CAP4表单取值、子表遍历、枚举转换、自定义控件 |
+| `references/api-integration.md` | HTTP客户端封装、Token管理、签名加密、补偿机制 |
+| `references/jsp-guide.md` | JSP CRUD页面模板、分页、弹窗、AJAX交互 |
+| `references/bpm-event-guide.md` | **流程事件完整指南** — AbstractWorkflowEvent + @ListenEvent + 前端拦截 |
 
 ## 注意事项
 
