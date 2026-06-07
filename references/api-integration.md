@@ -1,6 +1,6 @@
 # 第三方API集成模式
 
-基于数字安徽（金蝶+招采+SSO）、徽商（银行接口+Odoo）、安徽建工（群杰+浪潮+正孚）、合规院（金蝶云）、安徽国资（用友YONBIP+友空间）等项目的实战总结。
+基于致远远程系统集成的实战总结。
 
 ## 通用HTTP客户端封装
 
@@ -35,10 +35,6 @@ public class HttpKit {
             .setConnectionManager(cm).build();
         // ...execute and return
     }
-
-    public static String postJson(String url, String json) {
-        // POST application/json
-    }
 }
 ```
 
@@ -62,7 +58,7 @@ public class HttpKit {
 
 ### 双重检查锁缓存（推荐）
 ```java
-public class KingdeeClient {
+public class ApiClient {
     private volatile String token;
     private volatile long tokenExpireTime;
     private final ReentrantLock lock = new ReentrantLock();
@@ -84,16 +80,16 @@ public class KingdeeClient {
 }
 ```
 
-### Hutool TimedCache（数字安徽模式）
+### Hutool TimedCache
 ```java
 private static final TimedCache<String, String> tokenCache =
     new TimedCache<>(30 * 60 * 1000);  // 30分钟过期
 
 public static String getToken() {
-    String token = tokenCache.get("kingdee_token");
+    String token = tokenCache.get("api_token");
     if (token == null) {
         token = fetchNewToken();
-        tokenCache.put("kingdee_token", token);
+        tokenCache.put("api_token", token);
     }
     return token;
 }
@@ -101,7 +97,7 @@ public static String getToken() {
 
 ## 签名与加密
 
-### 国密SM4/SM3（数字安徽招采集成）
+### 国密SM4/SM3
 ```java
 public class Sm4Utils {
     // SM4加密请求Body
@@ -111,17 +107,17 @@ public class Sm4Utils {
 }
 ```
 
-### AES加密（徽商SSO）
+### AES加密（SSO票据）
 ```java
 public class TicketUtils {
-    private static final String AES_KEY = "A1B2C3D4E5F6G7H8";  // 建议移入pluginProperties.xml
+    // 密钥从pluginProperties.xml读取
     // 票据格式: loginName|timestamp|specialKey
-    public static String encrypt(String loginName) { ... }
-    public static String[] decrypt(String ticket) { ... }
+    public static String encrypt(String loginName, String key) { ... }
+    public static String[] decrypt(String ticket, String key) { ... }
 }
 ```
 
-### MD5签名（安徽国资友空间）
+### MD5签名
 ```java
 public class MD5SignUtil {
     public static String sign(Map<String, String> params, String secret) {
@@ -134,68 +130,43 @@ public class MD5SignUtil {
 
 ## 外部系统接口调用模式
 
-### XML接口（徽商银行银企直连）
+### XML接口（如银企直连）
 ```java
-public class BackPayServiceImpl {
-    public BackPayResponse SinglePayment(SinglePaymentPo po) {
-        String xml = buildXml(po);  // 组装XML
-        String result = OkHttp.postXml(BANK_URL, xml);
-        return parseXmlResponse(result);  // 解析retCode/retMsg/billCode
+public class XmlApiService {
+    public Response callService(RequestPo po) {
+        String xml = buildXml(po);
+        String result = HttpClient.postXml(apiUrl, xml);
+        return parseXmlResponse(result);
     }
 
-    private String buildXml(SinglePaymentPo po) {
-        return "<root><head><tr_code>BY0001</tr_code>" +
-               "<erp_syscode>AHHSWCZYOA</erp_syscode>" +
-               "<cust_no>301508920</cust_no></head>" +
+    private String buildXml(RequestPo po) {
+        return "<root><head><tr_code>BIZ001</tr_code>" +
+               "<erp_syscode>" + erpSysCode + "</erp_syscode>" +
+               "<cust_no>" + custNo + "</cust_no></head>" +
                "<body>" + buildBodyXml(po) + "</body></root>";
     }
 }
 ```
 
-### Odoo JSON API（徽商合同）
+### JSON REST API（如Odoo/金蝶云）
 ```java
-public class ContractHttpKit {
-    // 1. 登录获取session
-    public String login(String url, String db, String user, String pwd) { ... }
-    // 2. POST JSON创建记录
+public class JsonApiClient {
+    // 1. 登录获取session/token
+    public String login(String url, String user, String pwd) { ... }
+    // 2. POST JSON
     public String postJson(String url, String json) { ... }
-    // 3. GET JSON查询
+    // 3. GET JSON
     public String getJson(String url) { ... }
 }
 ```
 
-### 金蝶云星空API（合规院）
+### 用友系API（BIP/友空间）
 ```java
-public class JDUtils {
-    // 路由URL: api.kingdee.com
-    // 1. 鉴权获取appToken
-    public String authenticate(String clientId, String clientSecret) { ... }
-    // 2. 获取accessToken
-    public String getAccessToken(String appToken, String outerInstanceId) { ... }
-    // 3. 调用业务接口
-    public String saveVoucher(String token, Map<String, Object> data) {
-        // POST /jdy/v2/fi/virtual
-    }
-}
-```
-
-### 用友YONBIP集成（安徽国资）
-```java
-// BIP SSO
 public class BipSSOController extends BaseController {
     public ModelAndView sso(HttpServletRequest req, HttpServletResponse res) {
         String token = generateToken(user);
-        String bipUrl = BIP_BASE_URL + "/service/sso?token=" + token;
-        return redirectModelAndView(bipUrl);
-    }
-}
-
-// NCC待办查询（直连Oracle数据库）
-public class NccSection extends BaseSectionImpl {
-    public BaseSectionTemplete projection(Map<String, String> params) {
-        // JDBC直连BIP数据库查询待办
-        String sql = "SELECT * FROM zyoa.v_yonbip_user WHERE ...";
-        // 返回HTML内容
+        String targetUrl = bipBaseUrl + "/service/sso?token=" + token;
+        return redirectModelAndView(targetUrl);
     }
 }
 ```
@@ -204,7 +175,7 @@ public class NccSection extends BaseSectionImpl {
 
 ### 握手模式（SSOLoginHandshakeAbstract）
 ```java
-public class SaSSOLoginHandshake extends SSOLoginHandshakeAbstract {
+public class ThirdPartySSOLoginHandshake extends SSOLoginHandshakeAbstract {
     @Override
     public LoginUser doLogin(String ticket, SSOLoginInfo info) {
         // 1. 验证ticket（调用第三方验证接口）
@@ -215,13 +186,12 @@ public class SaSSOLoginHandshake extends SSOLoginHandshakeAbstract {
 
 ### Controller跳转模式
 ```java
-public class SaSSOController extends BaseController {
+public class SSOController extends BaseController {
     @NeedlessCheckLogin
     public ModelAndView sso(HttpServletRequest req, HttpServletResponse res) {
         String ticket = req.getParameter("ticket");
         String loginName = TicketValidator.validate(ticket);
-        String desLoginName = DES.encrypt(loginName);
-        return redirectModelAndView("/login/sso?from=sasso&ticket=" + desLoginName);
+        return redirectModelAndView("/login/sso?from=third&ticket=" + encrypt(loginName));
     }
 }
 ```
@@ -240,15 +210,14 @@ public class SaSSOController extends BaseController {
 ```java
 public class PendingRetryJob extends Thread {
     private volatile boolean running = true;
-    private static final long SCAN_INTERVAL = 60 * 1000;  // 60秒
+    private static final long SCAN_INTERVAL = 60 * 1000;
 
     @Override
     public void run() {
         while (running) {
             try {
-                List<PendingSyncTask> failedTasks = taskDao.findRetryable();
-                for (PendingSyncTask task : failedTasks) {
-                    // 退避策略：根据重试次数延长间隔
+                List<Task> failedTasks = taskDao.findRetryable();
+                for (Task task : failedTasks) {
                     dispatchService.retry(task);
                 }
                 Thread.sleep(SCAN_INTERVAL);
@@ -262,7 +231,7 @@ public class PendingRetryJob extends Thread {
 ```java
 // 原子状态更新，防止重复推送
 public boolean markSending(String taskId) {
-    String sql = "UPDATE hs_pending_sync_task SET status='SENDING' " +
+    String sql = "UPDATE sync_task SET status='SENDING' " +
                  "WHERE id=? AND status='PENDING'";
     int updated = jdbc.executeUpdate(sql, new Object[]{taskId});
     return updated > 0;

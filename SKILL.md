@@ -1,11 +1,11 @@
 ---
 name: zhiyuanskill-yw
-description: 致远CTP V5/V8二次开发完整指南 — 基于多个真实客开项目（安徽建工、徽商集团、数字安徽、规划设计研究院、国资集团等）的实战模式总结
+description: 致远CTP V5/V8二次开发完整指南 — 基于客开项目实战模式总结，覆盖V8.2SP1/V9.0SP1/V10.0SP1
 ---
 
 # 致远CTP二次开发Skill（完整版）
 
-基于对6个真实致远CTP客开项目的深度分析，覆盖V8.2SP1/V9.0SP1/V10.0SP1多个版本。
+基于对致远CTP客开项目的深度分析，覆盖V8.2SP1/V9.0SP1/V10.0SP1多个版本。
 
 ## 工作流程
 
@@ -357,7 +357,7 @@ public class HttpKit {
 
 ## 补偿与重试机制
 
-### 待办推送补偿模式（推荐参考：徽商合同htpending）
+### 待办推送补偿模式（推荐参考模式）
 ```
 事件触发/初始扫描
   → 创建PendingSyncTask（状态=PENDING）
@@ -429,7 +429,7 @@ apps_res/cap/customCtrlResources/<controlId>/
 ## 注意事项
 
 - **编码**：老V5项目中文可能使用GBK编码，编辑前用`file`命令检测
-- **平台版本**：目录名可能误导（如"国控_CTP_V5"实际是V8.2SP1），以pom.xml为准
+- **平台版本**：目录名可能误导（如某些项目目录含"V5"但实际是V8.2SP1），以pom.xml为准
 - **代码复用**：不同插件间DBKit/StrKit常被复制粘贴，建议提取公共模块
 - **硬编码**：API地址、密钥建议通过pluginProperties.xml配置，避免硬编码
 - **废弃代码**：检查是否有类似`*bAK`（备份）或完全注释掉的文件，及时清理

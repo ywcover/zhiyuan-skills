@@ -1,6 +1,6 @@
 # CAP4表单开发指南
 
-基于数字安徽、徽商合同、安徽建工、合规院等项目的CAP4表单实战总结。
+基于致远CTP客开项目的CAP4表单实战总结。
 
 ## 表单数据获取
 
@@ -23,7 +23,7 @@ public SuperNodeResponse executeAction(Map<String, Object> params) {
 ```java
 // 通过模板编码获取表单定义
 CAP4FormManager formManager = ...; // Spring注入
-FormBean formBean = FormCap4Kit.getFormBean(formManager, "dhdtz");
+FormBean formBean = FormCap4Kit.getFormBean(formManager, "templateCode");
 ```
 
 ## 字段取值方法

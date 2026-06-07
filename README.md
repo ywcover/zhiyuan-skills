@@ -1,6 +1,6 @@
 # 致远CTP二开技能库
 
-基于真实客开项目（安徽建工、徽商集团、数字安徽、规划设计研究院、国资集团等）提炼的AI辅助开发技能库。
+基于多个致远CTP客开项目的实战模式提炼，覆盖V8.2SP1/V9.0SP1/V10.0SP1版本。
 
 ## 目录结构
 
@@ -8,15 +8,14 @@
 zhiyuan-skills/
 ├── README.md                       # 本文件
 ├── CHANGELOG.md                    # 变更记录
-├── zhiyuanskill-yw/                # 汇总索引Skill（加载此Skill可使用所有子技能）
+├── zhiyuanskill-yw/                # 汇总索引Skill
 │   ├── SKILL.md
 │   ├── agents/openai.yaml
 │   └── references/
 │       ├── zhiyuan-sources.md
 │       ├── cap4-guide.md
 │       ├── api-integration.md
-│       ├── jsp-guide.md
-│       └── ...
+│       └── jsp-guide.md
 ├── skills/                         # 独立子技能（按功能拆分，持续补充）
 │   ├── ctp-new-plugin/             # 新建插件规范
 │   ├── ctp-cap4-form/              # CAP4表单操作
@@ -27,18 +26,36 @@ zhiyuan-skills/
 │   ├── ctp-jsp-page/               # JSP维护页面
 │   ├── ctp-sso/                    # SSO单点登录
 │   └── ctp-db-access/              # 数据访问
-├── templates/                      # 代码模板（可直接复制使用）
-└── projects/                       # 已分析项目索引
-    └── project-index.md
+└── templates/                      # 代码模板
 ```
 
 ## 使用方式
 
-在Claude Code中加载 `zhiyuanskill-yw` Skill后，AI会自动：
-- 识别致远CTP项目版本
-- 遵循插件开发规范生成代码
+在Claude Code中加载Skill后，AI会自动：
+- 遵循致远CTP插件开发规范生成代码
 - 使用正确的事件监听模式
 - 优先低侵入实现方案
+
+## 覆盖模式
+
+| 模式分类 | 覆盖内容 |
+|---------|---------|
+| 插件开发 | 目录结构、配置规范、分层架构、初始化器 |
+| Controller | BaseController/BaseResource、Spring XML映射、免登录配置 |
+| 事件监听 | 协同、公文、CAP4表单、文件下载、组织变更14+事件 |
+| CAP4表单 | 字段取值、子表遍历、枚举转换、附件处理、自定义控件 |
+| 超级节点 | 标准节点、轻量级抽象基类多类型模式 |
+| 数据访问 | JDBCAgent/DBKit、DBAgent、CAP4FormDataDAO |
+| API集成 | OkHttp/Apache/HttpURLConnection、Token缓存、SM4/AES签名 |
+| 补偿机制 | 待办推送补偿、定时重试、退避策略 |
+| SSO | 握手模式、Controller跳转模式、票据加解密 |
+| JSP页面 | CRUD维护页模板、分页、弹窗、AJAX交互 |
+
+## 已覆盖的版本
+
+- CTP V8.2SP1 — 插件化、Hibernate映射、门户定制
+- CTP V9.0SP1 — CAP4控件、水印、组织同步、批量打印
+- CTP V10.0SP1 — OkHttp、动态字段映射、轻量超级节点
 
 ## 贡献方式
 
@@ -46,14 +63,3 @@ zhiyuan-skills/
 2. 确认后更新对应Skill文件
 3. 更新CHANGELOG.md
 4. Push到仓库
-
-## 已分析项目
-
-| 项目 | 版本 | 核心模式 |
-|------|------|---------|
-| 安徽建工_CTP_V5 | V9.0SP1 | 20+插件、群杰印章、国资委报送、水印 |
-| 徽商_CTP_V5 | V8.2SP1 | 银行付款节点、办结分类、银企直连 |
-| 徽商合同_CTP_V5 | V10.0SP1 | 26个合同超级节点、动态字段映射、补偿机制 |
-| 合规院_CTP_V5 | V9.0SP1 | 金蝶云凭证/资产、批量打印 |
-| 数字安徽_CTP_V5 | V10.0SP1 | 金蝶+招采推送、SSO、SM4加密 |
-| 安徽国资_CTP_V5 | V8.2SP1 | 用友YONBIP、友空间SSO、门户定制 |
