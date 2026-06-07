@@ -475,7 +475,8 @@ apps_res/cap/customCtrlResources/<controlId>/
 | `references/cap4-guide.md` | CAP4表单取值、子表遍历、枚举转换、自定义控件 |
 | `references/api-integration.md` | HTTP客户端封装、Token管理、签名加密、补偿机制 |
 | `references/jsp-guide.md` | JSP CRUD页面模板、分页、弹窗、AJAX交互 |
-| `references/bpm-event-guide.md` | **流程事件完整指南** — AbstractWorkflowEvent + @ListenEvent + 前端拦截 |
+| `references/bpm-event-guide.md` | **流程事件开发完整指南** — AbstractWorkflowEvent + @ListenEvent + 前端拦截 |
+| `references/seeyonapi-event-index.md` | **SeeyonAPI 8.2 事件完整索引** — 20模块、180+事件速查 |
 
 ## 注意事项
 

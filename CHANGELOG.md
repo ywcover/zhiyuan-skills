@@ -1,5 +1,14 @@
 # 变更记录
 
+## [0.3.0] - 2026-06-07
+
+### 新增
+- `references/seeyonapi-event-index.md` — SeeyonAPI 8.2 事件完整索引
+  - 覆盖20个模块、180+事件
+  - 每个事件列出完整类路径和关键属性
+  - 附场景→事件映射速查表
+  - 数据来源：https://open.seeyoncloud.com/seeyonapi/8.2/event/
+
 ## [0.2.0] - 2026-06-07
 
 ### 新增
